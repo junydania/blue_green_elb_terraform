@@ -24,13 +24,8 @@ resource "aws_lb" "blue_green_elb" {
   name                = "blue-green-elb"
   internal            = false
   load_balancer_type  = "application"
-  availability_zones  = ["us-east-1a", "us-east-1b", "us-east-1c"]
 
-  instances                   = ["${aws_instance.green_ec2.id}"]
-  cross_zone_load_balancing   = true
   idle_timeout                = 400
-  connection_draining         = true
-  connection_draining_timeout = 400
 
   tags {
     Name = "blue-green-elb"
@@ -90,8 +85,4 @@ resource "aws_lb_listener" "blue_green_elb_listener" {
   load_balancer_arn = "${aws_lb.blue_green_elb.arn}"
   port              = 80
   protocol          = "HTTP"
-
-  tags = {
-    Name = "blue_green_elb_listener"
-  }
 }
