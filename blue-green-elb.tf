@@ -5,11 +5,19 @@ provider "aws" {
 resource "aws_instance" "blue_ec2" {
   ami           = "ami-059eeca93cf09eebd" # Ubuntu Server 16.04 LTS (HVM), SSD Volume Type
   instance_type = "t2.micro"
+
+  tags {
+    Name = "blue_ec2"
+  }
 }
 
 resource "aws_instance" "green_ec2" {
   ami           = "ami-059eeca93cf09eebd" # Ubuntu Server 16.04 LTS (HVM), SSD Volume Type
   instance_type = "t2.micro"
+
+  tags {
+    Name = "green_ec2"
+  }
 }
 
 resource "aws_elb" "blue_green_elb" {
