@@ -5,3 +5,7 @@ variable "key_name" {
 variable "public_key_path" {
   description = "Path to the SSH public key to be used for authentication. Ensure this keypair is added to your local SSH agent so provisioners can connect. Example: ~/.ssh/terraform.pub"
 }
+
+variable "private_key_path" {
+  description = "Path to the SSH private key to be used for authentication. Ensure this keypair is added to your local SSH agent so provisioners can connect. Example: ~/.ssh/terraform"
+}
