@@ -24,6 +24,8 @@ fi
 
 cd terraform;
 
+terraform init;
+
 terraform apply;
 
 blue_ec2_ip=$(terraform output blue_ec2_ip);
