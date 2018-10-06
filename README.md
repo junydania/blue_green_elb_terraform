@@ -6,7 +6,7 @@ is a proof of concept for using ELB as a way to do blue/green deployments.
 
 The Terraform plan should define infrastructure that looks like this:
 
-[![Terraform plan diagram](./graph.png)](https://raw.githubusercontent.com/timrourke/blue_green_elb_terraform/master/graph.png)
+[![Terraform plan diagram](./graph.svg)](https://cloudcraft.co/view/1c585bca-0562-4b11-8281-bd948044fd92?key=cQrA7McsgrYL_ajeG7SjUw)
 
 **PLEASE NOTE:** Running Terraform will provision real resources in your AWS
 account, and may incur costs to you as the account holder.
