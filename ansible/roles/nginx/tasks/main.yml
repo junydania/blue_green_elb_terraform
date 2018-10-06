@@ -1,0 +1,24 @@
+---
+# Install nginx
+
+- name: Install nginx
+  apt: name=nginx state=present
+
+- name: Remove the default nginx site configuration
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: restart nginx
+
+- name: Create directory for site index.html
+  file:
+    path: /var/www/site
+    state: directory
+
+- name: Add the nginx configuration
+  template: src=site.j2 dest=/etc/nginx/sites-enabled/site
+  notify: restart nginx
+
+- name: Add the index.html file
+  template: src=index.html.j2 dest=/var/www/site/index.html
+  notify: restart nginx

@@ -13,7 +13,7 @@ provider "aws" {
 
 # Set up the public SSH key we should use for interacting with the EC2 instances
 resource "aws_key_pair" "auth" {
-  key_name   = "${var.key_name}"
+  key_name   = "blue_green_key_pair"
   public_key = "${file(var.public_key_path)}"
 }
 
@@ -24,24 +24,28 @@ resource "aws_instance" "blue_ec2" {
     private_key = "${file(var.private_key_path)})"
   }
 
-  ami             = "ami-059eeca93cf09eebd" # Ubuntu Server 16.04 LTS (HVM), SSD Volume Type
-  instance_type   = "t2.micro"
-  subnet_id       = "${aws_subnet.blue_subnet.id}"
-  security_groups = ["${aws_security_group.blue_green_instance_security_group.id}"]
-  key_name        = "${aws_key_pair.auth.id}"
+  ami                    = "ami-059eeca93cf09eebd" # Ubuntu Server 16.04 LTS (HVM), SSD Volume Type
+  instance_type          = "t2.micro"
+  subnet_id              = "${aws_subnet.blue_subnet.id}"
+  vpc_security_group_ids = ["${aws_security_group.blue_green_instance_security_group.id}"]
+  key_name               = "${aws_key_pair.auth.id}"
 
   # Install Nginx immediately
   provisioner "remote-exec" {
     inline = [
       "sudo apt-get -y update",
-      "sudo apt-get -y install nginx",
-      "sudo systemctl start nginx.service",
+      "sudo apt-get -y install python",
     ]
   }
 
   tags {
     Name = "blue_ec2"
   }
+}
+
+# Output the "blue" EC2's public IP address
+output "blue_ec2_ip" {
+  value = "${aws_instance.blue_ec2.public_ip}"
 }
 
 # Create an EC2 instance for our initial "green" application
@@ -51,24 +55,28 @@ resource "aws_instance" "green_ec2" {
     private_key = "${file(var.private_key_path)}"
   }
 
-  ami             = "ami-059eeca93cf09eebd" # Ubuntu Server 16.04 LTS (HVM), SSD Volume Type
-  instance_type   = "t2.micro"
-  subnet_id       = "${aws_subnet.green_subnet.id}"
-  security_groups = ["${aws_security_group.blue_green_instance_security_group.id}"]
-  key_name        = "${aws_key_pair.auth.id}"
+  ami                    = "ami-059eeca93cf09eebd" # Ubuntu Server 16.04 LTS (HVM), SSD Volume Type
+  instance_type          = "t2.micro"
+  subnet_id              = "${aws_subnet.green_subnet.id}"
+  vpc_security_group_ids = ["${aws_security_group.blue_green_instance_security_group.id}"]
+  key_name               = "${aws_key_pair.auth.id}"
 
   # Install Nginx immediately
   provisioner "remote-exec" {
     inline = [
       "sudo apt-get -y update",
-      "sudo apt-get -y install nginx",
-      "sudo systemctl start nginx.service",
+      "sudo apt-get -y install python",
     ]
   }
 
   tags {
     Name = "green_ec2"
   }
+}
+
+# Output the "green" EC2's public IP address
+output "green_ec2_ip" {
+  value = "${aws_instance.green_ec2.public_ip}"
 }
 
 # Create our Elastic Load Balancer
@@ -84,6 +92,21 @@ resource "aws_lb" "blue_green_elb" {
   tags {
     Name = "blue-green-elb"
   }
+}
+
+# Output the domain name of the load balancer
+output "blue_green_elb_domain" {
+  value = "${aws_lb.blue_green_elb.dns_name}"
+}
+
+# Output the ARN of the load balancer
+output "blue_green_elb_arn" {
+  value = "${aws_lb.blue_green_elb.arn}"
+}
+
+# Output the name of the load balancer
+output "blue_green_elb_name" {
+  value = "${aws_lb.blue_green_elb.name}"
 }
 
 # Configure our VPC
@@ -180,6 +203,11 @@ resource "aws_lb_target_group" "blue_elb_target_group" {
   }
 }
 
+
+output "blue_target_group_arn" {
+  value = "${aws_lb_target_group.blue_elb_target_group.arn}"
+}
+
 # Attach the EC2 instance for the "blue" EC2 instance to the blue target group
 resource "aws_lb_target_group_attachment" "blue_elb_target_group_attachment" {
   target_group_arn = "${aws_lb_target_group.blue_elb_target_group.arn}"
@@ -199,6 +227,10 @@ resource "aws_lb_target_group" "green_elb_target_group" {
   tags {
     Name = "green-elb-target-group"
   }
+}
+
+output "green_target_group_arn" {
+  value = "${aws_lb_target_group.green_elb_target_group.arn}"
 }
 
 # Attach the EC2 instance for the "green" EC2 instance to the green target group

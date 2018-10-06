@@ -1,0 +1,48 @@
+---
+# Common Ubuntu setup
+
+- name: Update apt package list
+  apt:
+    update_cache: yes
+    upgrade: dist
+
+- name: Deny incoming traffic by default through ufw
+  ufw:
+    state: enabled
+    policy: deny
+
+- name: Allow OpenSSH access through ufw
+  ufw:
+    rule: allow
+    name: OpenSSH 
+
+- name: Allow web traffic through ufw
+  ufw:
+    rule: allow
+    port: 80
+    proto: tcp
+
+- name: Allow HTTPS web traffic through ufw
+  ufw:
+    rule: allow
+    port: 443
+    proto: tcp
+
+- name: Install ntp
+  apt: name=ntp state=present
+  tags: ntp
+
+- name: Configure ntp file
+  template: src=ntp.conf.j2 dest=/etc/ntp.conf
+  tags: ntp
+  notify: restart ntp
+
+- name: Start the ntp service
+  service: name=ntp state=started enabled=yes
+  tags: ntp
+
+- name: Allow ntp access through ufw
+  ufw:
+    rule: allow
+    port: 123
+    proto: udp
