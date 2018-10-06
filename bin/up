@@ -1,0 +1,55 @@
+#!/bin/bash
+
+set -euo pipefail
+
+if ! [ -x "$(command -v terraform)" ]; then
+  echo 'Error: Terraform is not installed. Download it here: https://www.terraform.io/downloads.html' >&2
+  exit 1
+fi
+
+if ! [ -x "$(command -v aws)" ]; then
+  echo 'Error: The AWS CLI tool is not installed. Download it here: https://docs.aws.amazon.com/cli/latest/userguide/installing.html' >&2
+  exit 1
+fi
+
+if ! [ -x "$(command -v ansible-playbook)" ]; then
+  echo 'Error: Ansible is not installed. Download it here: https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html' >&2
+  exit 1
+fi
+
+if ! [ -x "$(command -v jq)" ]; then
+  echo 'Error: jq is not installed. Download it here: https://stedolan.github.io/jq/' >&2
+  exit 1
+fi
+
+cd terraform;
+
+terraform apply;
+
+blue_ec2_ip=$(terraform output blue_ec2_ip);
+
+green_ec2_ip=$(terraform output green_ec2_ip);
+
+blue_green_elb_domain=$(terraform output blue_green_elb_domain);
+
+# Set up the Ansible hosts file to point to the EC2 instances created by
+# the Terraform script
+cat > ./../ansible/ansible_hosts << EOF
+blue:
+  hosts:
+    $blue_ec2_ip:
+  vars:
+    color: blue
+
+green:
+  hosts:
+    $green_ec2_ip:
+  vars:
+    color: green
+EOF
+
+cd ./../ansible
+
+ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ansible_hosts playbook.yml;
+
+echo "Visit the URL http://$blue_green_elb_domain to see the current active state of your application.";
