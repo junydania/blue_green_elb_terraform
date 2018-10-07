@@ -29,7 +29,7 @@ dependencies installed:
 ## Getting Started
 
 <ol>
-<li>Make sure you have an RSA public/private keypair for SSH living at `~/.ssh/id_rsa` (private), and `~/.ssh/id_rsa.pub` (public). This keypair will be used by Ansible to provision the hosts.</li>
+<li>Make sure you have an RSA public/private keypair for SSH living at <code>~/.ssh/id_rsa</code> (private), and <code>~/.ssh/id_rsa.pub</code> (public). This keypair will be used by Ansible to provision the hosts.</li>
 <li>Set your AWS credentials in your environment:
 
 ```bash
