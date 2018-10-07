@@ -98,10 +98,12 @@ Initially, the "green" half of the fleet is in "active" state.
 
 ### Atomicity for the Win
 
-This specific implementation leverages the AWS Elastic Load Balancer's ability
-to be updated using a single API call (in our case we use the AWS CLI tool to
-do the legwork). The update made to switch the traffic from "blue" to "green"
-(and back) is one HTTP request, that updates the ELB's Listener's Target Group
+This specific implementation leverages the [AWS Elastic Load Balancer's](https://aws.amazon.com/elasticloadbalancing/features/#Details_for_Elastic_Load_Balancing_Products)
+ability to be updated using a single API call (in our case we use the AWS CLI
+tool to do the legwork). The update made to switch the traffic from "blue" to
+"green" (and back) is only one single HTTP request, which updates the ELB's
+[Listener's](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-listeners.html)
+current [Target Group](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html)
 to point to a different group of hosts.
 
 The fact that traffic can be redirected using a single, atomic API request to
@@ -121,4 +123,5 @@ easy to imagine that instead of a simple static site served using Nginx, a big
 and complex web application with many moving parts might be the end target of
 this traffic. In fact, many use ELB in combination with auto-scaling groups of
 many application instances to rapidly redirect traffic to a large fleet of
-waiting EC2s (or other VMs or containers) idly waiting for their first requests. 
+waiting EC2s (or other VMs, or even containers) idly waiting for their first
+requests. 
